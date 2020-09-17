@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import Editor from 'draft-js-plugins-editor'
 import createHashtagPlugin from 'draft-js-hashtag-plugin'
 import createLinkifyPlugin from 'draft-js-linkify-plugin'
-import { EditorState } from 'draft-js'
+import { EditorState, CompositeDecorator } from 'draft-js'
 import PropTypes from 'prop-types'
+import { List } from 'immutable'
 
 const EVENT_PROXIES = [
   'focus',
@@ -20,6 +21,27 @@ const EVENT_PROXIES = [
   'onDragEnter',
   'onDragLeave',
 ]
+
+const PluginUtils = {
+  resolveDecorators (decorators, getEditorState, setEditorState) {
+    const convertdDecorators =
+      List(decorators)
+        .map(decorator => {
+          const Component = decorator.Component
+          const DecoratedCompontent = props => (
+            <Component {...props} getEditorState={getEditorState} setEditorState={setEditorState} />
+          )
+          return {
+            ...decorator,
+            Component: DecoratedCompontent
+          }
+        })
+        .toJS()
+    return new CompositeDecorator
+      
+  },
+  createCompositeDecorator () {}
+}
 
 class PluginEditor extends Component {
   static propTypes = {
